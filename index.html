@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Mindless — Your family's second brain</title>
+  <meta name="description" content="Family management and life automation that takes the mental load off your shoulders.">
+
+  <!-- Base path for MAMP subdirectory -->
+  <!-- Base path: MAMP subdir locally, root elsewhere (Vercel) -->
+  <script>document.write('<base href="' + (location.pathname.indexOf('/Antigravity/Personal/Home') === 0 ? '/Antigravity/Personal/Home/' : '/') + '">');</script>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#FCF3EA">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Mindless">
+  <link rel="apple-touch-icon" href="icons/icon-192x192.svg">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Phosphor Icons -->
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/app.css">
+
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+  <div class="app">
+    <main id="app-view" class="app__main"></main>
+    <nav-bar></nav-bar>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

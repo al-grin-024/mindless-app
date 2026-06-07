@@ -1,0 +1,379 @@
+/* ============================================================
+   Mindless — Design System
+   Tokens, typography, base elements, buttons, cards, pills.
+   Everything lives on the cream background.
+   ============================================================ */
+
+/* ─── Font ─────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* ─── Tokens ───────────────────────────────────────────── */
+:root {
+  /* Background */
+  --bg-cream: #FCF3EA;
+  --bg-white: #FFFFFF;
+
+  /* Category pastels */
+  --cat-blue:   #C5DDF5; /* Family / Generic */
+  --cat-peach:  #FFD6C9; /* Daily / Food */
+  --cat-mint:   #CAE8C8; /* Finance / Health */
+  --cat-lilac:  #E8E2FF; /* Education / Social */
+  --cat-yellow: #FFD576; /* Calendar / warnings */
+  --cat-pink:   #FFCDD2; /* Agenda / Planning */
+  --cat-teal:   #B2DFDB; /* Family members */
+  --cat-rose:   #F8CABA; /* Spark / Relationship */
+
+  /* Darker shades of the pastels (icon fills) */
+  --cat-blue-ink:   #4A7AB5;
+  --cat-peach-ink:  #D9805F;
+  --cat-mint-ink:   #5E9E5A;
+  --cat-lilac-ink:  #7B6CC9;
+  --cat-yellow-ink: #C99A26;
+  --cat-pink-ink:   #D17580;
+  --cat-teal-ink:   #4E938E;
+  --cat-rose-ink:   #C97759;
+
+  /* Blob gradients */
+  --blob-peach:    #FFD6C9;
+  --blob-lavender: #D1CAEA;
+  --blob-mint:     #CAE8C8;
+  --blob-yellow:   #FFD576;
+
+  /* Text */
+  --text-primary:   #2D2D2D;
+  --text-secondary: #666666;
+  --text-tertiary:  #999999;
+  --text-body:      #555555;
+  --text-caption:   #888888;
+
+  /* Buttons */
+  --btn-primary-bg:   #2D2D2D;
+  --btn-primary-text: #FFFFFF;
+
+  /* Shadows & radii */
+  --card-shadow:    0 2px 12px rgba(0, 0, 0, 0.06);
+  --card-shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.10);
+  --card-radius:    20px;
+  --card-radius-sm: 16px;
+  --btn-radius:     100px;
+
+  /* Spacing scale */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+
+  /* Layout */
+  --nav-height: 76px;
+  --content-max: 480px;
+  --transition: 300ms cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ─── Reset ────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg-cream);
+  color: var(--text-body);
+  font-weight: 400;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
+}
+
+button, input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+button { cursor: pointer; border: none; background: none; }
+a { color: inherit; text-decoration: none; }
+ul, ol { list-style: none; }
+img, svg { display: block; max-width: 100%; }
+
+::selection { background: var(--cat-peach); color: var(--text-primary); }
+
+/* ─── App shell ────────────────────────────────────────── */
+.app {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.app__main {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+}
+
+/* The view container each screen renders into */
+.view {
+  position: relative;
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: calc(var(--safe-top) + var(--sp-6)) var(--sp-5)
+           calc(var(--nav-height) + var(--safe-bottom) + var(--sp-6));
+  display: flex;
+  flex-direction: column;
+}
+
+/* Views without the bottom nav (welcome, onboarding, splash, confirmation) */
+.view--full {
+  padding-bottom: calc(var(--safe-bottom) + var(--sp-6));
+}
+
+/* ─── Typography ───────────────────────────────────────── */
+.h1 { font-size: 2rem;    font-weight: 800; color: var(--text-primary); line-height: 1.15; letter-spacing: -0.02em; }
+.h2 { font-size: 1.5rem;  font-weight: 800; color: var(--text-primary); line-height: 1.2;  letter-spacing: -0.01em; }
+.h3 { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); line-height: 1.25; }
+.h4 { font-size: 1.0625rem; font-weight: 700; color: var(--text-primary); }
+
+.title-hero { font-size: 3rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; line-height: 1; }
+
+.text-body   { font-size: 1rem;     font-weight: 400; color: var(--text-body); }
+.text-medium { font-size: 1rem;     font-weight: 500; color: var(--text-body); }
+.text-small  { font-size: 0.875rem; font-weight: 400; color: var(--text-secondary); }
+.text-caption{ font-size: 0.8125rem; font-weight: 400; color: var(--text-caption); }
+.text-muted  { color: var(--text-tertiary); }
+.text-strong { font-weight: 700; color: var(--text-primary); }
+
+.section-title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: var(--sp-3);
+  letter-spacing: -0.01em;
+}
+
+/* ─── Buttons ──────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  padding: 15px 28px;
+  border-radius: var(--btn-radius);
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
+  transition: transform var(--transition), box-shadow var(--transition), opacity var(--transition);
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  box-shadow: 0 4px 16px rgba(45, 45, 45, 0.22);
+}
+.btn-primary:active { box-shadow: 0 2px 8px rgba(45, 45, 45, 0.18); }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-primary);
+  border: 2px solid rgba(45, 45, 45, 0.18);
+}
+
+.btn-ghost {
+  background: var(--bg-white);
+  color: var(--text-primary);
+  box-shadow: var(--card-shadow);
+}
+
+.btn-block { width: 100%; }
+.btn-lg { padding: 18px 32px; font-size: 1.0625rem; }
+.btn-sm { padding: 10px 18px; font-size: 0.875rem; }
+
+.btn:disabled { opacity: 0.5; pointer-events: none; }
+
+/* Google button — black pill with the colored G */
+.btn-google {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  box-shadow: 0 4px 16px rgba(45, 45, 45, 0.22);
+}
+.btn-google .g-logo {
+  width: 22px; height: 22px;
+  background: #fff;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.btn-google .g-logo svg { width: 14px; height: 14px; }
+
+/* Icon button (back arrows etc.) */
+.icon-btn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  background: transparent;
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+.icon-btn:active { background: rgba(45, 45, 45, 0.06); }
+
+/* ─── Cards ────────────────────────────────────────────── */
+.card {
+  background: var(--bg-white);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  padding: var(--sp-5);
+}
+.card--flush { padding: 0; overflow: hidden; }
+
+/* Colored section/task card */
+.card-colored {
+  border-radius: var(--card-radius-sm);
+  padding: var(--sp-4) var(--sp-5);
+}
+
+/* ─── Pills / chips ────────────────────────────────────── */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--btn-radius);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg-white);
+}
+.pill-dark { background: var(--btn-primary-bg); color: #fff; }
+
+/* ─── Form fields ──────────────────────────────────────── */
+.field {
+  width: 100%;
+  padding: 15px 18px;
+  border-radius: var(--card-radius-sm);
+  background: var(--bg-white);
+  border: 2px solid transparent;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 1rem;
+  box-shadow: var(--card-shadow);
+  transition: border-color var(--transition);
+}
+.field::placeholder { color: var(--text-tertiary); font-weight: 400; }
+.field:focus { outline: none; border-color: rgba(45, 45, 45, 0.2); }
+
+.field-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: var(--sp-2);
+  padding-left: var(--sp-1);
+}
+
+/* Toggle switch */
+.toggle {
+  position: relative;
+  width: 50px; height: 30px;
+  border-radius: var(--btn-radius);
+  background: #DDD3C7;
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: transform var(--transition);
+}
+.toggle.on { background: #2D2D2D; }
+.toggle.on::after { transform: translateX(20px); }
+
+/* ─── Avatar ───────────────────────────────────────────── */
+.avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--cat-blue);
+  flex-shrink: 0;
+}
+.avatar-fallback {
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cat-teal);
+  color: var(--text-primary);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ─── Empty state ──────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--sp-4);
+  padding: var(--sp-12) var(--sp-5);
+  margin: auto;
+}
+.empty-state__icon { font-size: 3rem; color: var(--text-tertiary); }
+.empty-state__title { font-size: 1.125rem; font-weight: 700; color: var(--text-primary); }
+
+/* ─── Helpers ──────────────────────────────────────────── */
+.row { display: flex; align-items: center; }
+.row-between { display: flex; align-items: center; justify-content: space-between; }
+.col { display: flex; flex-direction: column; }
+.gap-1 { gap: var(--sp-1); } .gap-2 { gap: var(--sp-2); }
+.gap-3 { gap: var(--sp-3); } .gap-4 { gap: var(--sp-4); }
+.gap-5 { gap: var(--sp-5); } .gap-6 { gap: var(--sp-6); }
+.mt-2 { margin-top: var(--sp-2); } .mt-4 { margin-top: var(--sp-4); }
+.mt-6 { margin-top: var(--sp-6); } .mt-8 { margin-top: var(--sp-8); }
+.mb-2 { margin-bottom: var(--sp-2); } .mb-4 { margin-bottom: var(--sp-4); }
+.mb-6 { margin-bottom: var(--sp-6); }
+.flex-1 { flex: 1; }
+.text-center { text-align: center; }
+.full-w { width: 100%; }
+.hidden { display: none !important; }
+
+/* Category color utility backgrounds */
+.bg-blue   { background: var(--cat-blue); }
+.bg-peach  { background: var(--cat-peach); }
+.bg-mint   { background: var(--cat-mint); }
+.bg-lilac  { background: var(--cat-lilac); }
+.bg-yellow { background: var(--cat-yellow); }
+.bg-pink   { background: var(--cat-pink); }
+.bg-teal   { background: var(--cat-teal); }
+.bg-rose   { background: var(--cat-rose); }

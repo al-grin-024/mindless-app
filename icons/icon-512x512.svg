@@ -1,0 +1,8 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="100" fill="#FCF3EA"/>
+  <circle cx="160" cy="210" r="85" fill="#FFD6C9" opacity="0.6"/>
+  <circle cx="350" cy="185" r="75" fill="#D1CAEA" opacity="0.5"/>
+  <circle cx="255" cy="320" r="70" fill="#CAE8C8" opacity="0.5"/>
+  <circle cx="380" cy="340" r="50" fill="#FFD576" opacity="0.4"/>
+  <text x="256" y="300" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="192" font-weight="800" fill="#1A1A1A">M</text>
+</svg>
