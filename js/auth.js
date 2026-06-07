@@ -5,7 +5,7 @@ import { store } from './store.js';
 import { router } from './router.js';
 
 export const auth = {
-  clientId: '100961740549-kdm90o6ibq3rgmf4ikqos01c5f8gresi.apps.googleusercontent.com',
+  clientId: '184275451301-5j76u3kc6b02kraehukuol725suue30p.apps.googleusercontent.com',
   _initialized: false,
 
   init() {
