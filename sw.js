@@ -3,7 +3,7 @@
  * Base-path aware: the app is hosted under a MAMP subdirectory, so all
  * cached URLs are derived from the SW's own scope rather than the origin root.
  */
-const CACHE = 'mindless-v2';
+const CACHE = 'mindless-v3';
 
 // e.g. "/Antigravity/Personal/Home/"
 const BASE = self.location.pathname.replace(/sw\.js$/, '');
