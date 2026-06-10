@@ -4,6 +4,9 @@
 import { db } from './db.js';
 import { defaultCategories } from './data/categories.js';
 
+const USER_CACHE_KEY = 'mindless_user';
+const onboardingKey = (userId) => `mindless_onboarded:${userId}`;
+
 const _state = {
   user: null,
   partner: null,
@@ -44,12 +47,12 @@ export const store = {
   async init() {
     try {
       await db.init();
-      const saved = localStorage.getItem('mindless_user');
+      const saved = localStorage.getItem(USER_CACHE_KEY);
       if (saved) {
         this.state.user = JSON.parse(saved);
         this.state.isAuthenticated = true;
+        this.state.isOnboarded = localStorage.getItem(onboardingKey(this.state.user.id)) === 'true';
       }
-      this.state.isOnboarded = localStorage.getItem('mindless_onboarded') === 'true';
 
       const [members, tasks, events, cats, expenses, settings] = await Promise.all([
         db.getAll('familyMembers'), db.getAll('tasks'), db.getAll('events'),
@@ -107,13 +110,29 @@ export const store = {
   },
 
   async markOnboarded() {
-    localStorage.setItem('mindless_onboarded', 'true');
+    if (this.state.user?.id) {
+      localStorage.setItem(onboardingKey(this.state.user.id), 'true');
+    }
     this.state.isOnboarded = true;
   },
 
+  setAuthenticatedUser(user) {
+    if (!user) {
+      localStorage.removeItem(USER_CACHE_KEY);
+      this.state.user = null;
+      this.state.isAuthenticated = false;
+      this.state.isOnboarded = false;
+      return;
+    }
+
+    localStorage.setItem(USER_CACHE_KEY, JSON.stringify(user));
+    this.state.user = user;
+    this.state.isAuthenticated = true;
+    this.state.isOnboarded = localStorage.getItem(onboardingKey(user.id)) === 'true';
+  },
+
   async logout() {
-    localStorage.removeItem('mindless_user');
-    localStorage.removeItem('mindless_onboarded');
+    localStorage.removeItem(USER_CACHE_KEY);
     await Promise.all(['familyMembers','tasks','events','categories','expenses','settings'].map(s => db.clear(s)));
     Object.assign(this.state, { user: null, partner: null, isAuthenticated: false, isOnboarded: false,
       familyMembers: [], tasks: [], events: [], expenses: [] });

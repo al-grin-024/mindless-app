@@ -2,7 +2,6 @@
  * Mindless — Firebase Authentication
  */
 import {
-  GoogleAuthProvider,
   onAuthStateChanged,
   signInWithPopup,
   signOut as firebaseSignOut,
@@ -11,7 +10,7 @@ import { store } from './store.js';
 import { router } from './router.js';
 import { getFirebaseAuth, getGoogleProvider, isFirebaseConfigured } from './firebase.js';
 
-function normalizeUser(user, accessToken = null) {
+function normalizeUser(user) {
   if (!user) return null;
 
   return {
@@ -21,21 +20,9 @@ function normalizeUser(user, accessToken = null) {
     email: user.email || '',
     photoUrl: user.photoURL || '',
     provider: user.providerData?.[0]?.providerId || 'google.com',
-    token: accessToken,
+    emailVerified: !!user.emailVerified,
+    lastLoginAt: user.metadata?.lastSignInTime || null,
   };
-}
-
-function persistUser(user) {
-  if (!user) {
-    localStorage.removeItem('mindless_user');
-    store.state.user = null;
-    store.state.isAuthenticated = false;
-    return;
-  }
-
-  localStorage.setItem('mindless_user', JSON.stringify(user));
-  store.state.user = user;
-  store.state.isAuthenticated = true;
 }
 
 export const auth = {
@@ -54,7 +41,7 @@ export const auth = {
         const firebaseAuth = await getFirebaseAuth();
         onAuthStateChanged(firebaseAuth, async (firebaseUser) => {
           if (!firebaseUser) {
-            persistUser(null);
+            store.setAuthenticatedUser(null);
             if (firstSync) {
               firstSync = false;
               resolve();
@@ -62,8 +49,7 @@ export const auth = {
             return;
           }
 
-          const token = await firebaseUser.getIdToken().catch(() => null);
-          persistUser(normalizeUser(firebaseUser, token));
+          store.setAuthenticatedUser(normalizeUser(firebaseUser));
 
           if (firstSync) {
             firstSync = false;
@@ -92,12 +78,16 @@ export const auth = {
     const firebaseAuth = await getFirebaseAuth();
     const provider = getGoogleProvider();
     const result = await signInWithPopup(firebaseAuth, provider);
-    const credential = GoogleAuthProvider.credentialFromResult(result);
-    const user = normalizeUser(result.user, credential?.accessToken || null);
+    const user = normalizeUser(result.user);
 
-    persistUser(user);
+    store.setAuthenticatedUser(user);
     router.navigate(store.state.isOnboarded ? '/' : '/onboarding');
     return user;
+  },
+
+  async getIdToken() {
+    const firebaseAuth = await getFirebaseAuth();
+    return firebaseAuth.currentUser ? firebaseAuth.currentUser.getIdToken() : null;
   },
 
   async signOut() {
