@@ -61,7 +61,7 @@ export default async function render() {
 
     <h3>6. Terceros</h3>
     <ul>
-      <li>Google Identity Services (inicio de sesión)</li>
+      <li>Firebase Authentication (inicio de sesión)</li>
       <li>Firebase (almacenamiento y sincronización)</li>
       <li>Google Vision API (OCR de documentos que tú subes)</li>
     </ul>

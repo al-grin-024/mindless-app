@@ -18,7 +18,7 @@ async function bootstrap() {
   try {
     initI18n();
     await store.init();
-    auth.init();
+    await auth.init();
     voice.init();
     router.init('app-view');
   } catch (e) {

@@ -3,7 +3,7 @@
  * Base-path aware: the app is hosted under a MAMP subdirectory, so all
  * cached URLs are derived from the SW's own scope rather than the origin root.
  */
-const CACHE = 'mindless-v4';
+const CACHE = 'mindless-v5';
 
 // e.g. "/Antigravity/Personal/Home/"
 const BASE = self.location.pathname.replace(/sw\.js$/, '');
@@ -15,7 +15,8 @@ const ASSETS = [
   url('manifest.json'),
   url('css/design-system.css'), url('css/app.css'), url('css/animations.css'),
   url('js/app.js'), url('js/router.js'), url('js/store.js'), url('js/db.js'),
-  url('js/auth.js'), url('js/i18n.js'), url('js/voice.js'), url('js/notifications.js'),
+  url('js/auth.js'), url('js/firebase.js'), url('js/firebase-config.js'),
+  url('js/i18n.js'), url('js/voice.js'), url('js/notifications.js'),
   url('js/data/translations-en.js'), url('js/data/categories.js'),
 ];
 

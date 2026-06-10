@@ -1,115 +1,114 @@
 /**
- * Mindless — Google Identity Services Auth
+ * Mindless — Firebase Authentication
  */
+import {
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithPopup,
+  signOut as firebaseSignOut,
+} from 'https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js';
 import { store } from './store.js';
 import { router } from './router.js';
+import { getFirebaseAuth, getGoogleProvider, isFirebaseConfigured } from './firebase.js';
+
+function normalizeUser(user, accessToken = null) {
+  if (!user) return null;
+
+  return {
+    id: user.uid,
+    name: user.displayName || user.email || 'User',
+    givenName: user.displayName ? user.displayName.split(' ')[0] : '',
+    email: user.email || '',
+    photoUrl: user.photoURL || '',
+    provider: user.providerData?.[0]?.providerId || 'google.com',
+    token: accessToken,
+  };
+}
+
+function persistUser(user) {
+  if (!user) {
+    localStorage.removeItem('mindless_user');
+    store.state.user = null;
+    store.state.isAuthenticated = false;
+    return;
+  }
+
+  localStorage.setItem('mindless_user', JSON.stringify(user));
+  store.state.user = user;
+  store.state.isAuthenticated = true;
+}
 
 export const auth = {
-  clientId: '184275451301-5j76u3kc6b02kraehukuol725suue30p.apps.googleusercontent.com',
   _initialized: false,
+  _ready: null,
 
-  init() {
-    if (typeof google === 'undefined' || !google.accounts) {
-      // GIS not yet loaded — wait for it
-      window.addEventListener('load', () => { if (typeof google !== 'undefined') this._setup(); });
-      return;
-    }
-    this._setup();
-  },
+  async init() {
+    if (this._ready) return this._ready;
+    if (!isFirebaseConfigured()) return;
 
-  _setup() {
-    if (this._initialized) return;
-    google.accounts.id.initialize({
-      client_id: this.clientId,
-      callback: (resp) => this._onCredential(resp),
-      auto_select: false,
-    });
     this._initialized = true;
-  },
+    this._ready = new Promise(async (resolve) => {
+      let firstSync = true;
 
-  /** Called from the welcome view's button */
-  handleGoogleClick() {
-    if (typeof google === 'undefined' || !google.accounts) {
-      alert('Google Sign-In is still loading. Please wait a moment.');
-      return;
-    }
-    if (!this._initialized) this._setup();
-    google.accounts.id.prompt((notification) => {
-      // One Tap couldn't show (already signed in, cooldown, FedCM blocked…).
-      // Show a proper, DISMISSIBLE modal instead of leaking a floating button.
-      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-        this._showFallback();
+      try {
+        const firebaseAuth = await getFirebaseAuth();
+        onAuthStateChanged(firebaseAuth, async (firebaseUser) => {
+          if (!firebaseUser) {
+            persistUser(null);
+            if (firstSync) {
+              firstSync = false;
+              resolve();
+            }
+            return;
+          }
+
+          const token = await firebaseUser.getIdToken().catch(() => null);
+          persistUser(normalizeUser(firebaseUser, token));
+
+          if (firstSync) {
+            firstSync = false;
+            resolve();
+          }
+        });
+      } catch (error) {
+        console.error('Firebase auth init failed:', error);
+        resolve();
       }
     });
+
+    return this._ready;
   },
 
-  /** Managed sign-in modal (backdrop + close). Cleaned up on credential/close. */
-  _showFallback() {
-    this._removeFallback();
-
-    const backdrop = document.createElement('div');
-    backdrop.className = 'sheet-backdrop';
-
-    const card = document.createElement('div');
-    card.setAttribute('role', 'dialog');
-    card.style.cssText =
-      'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;' +
-      'background:#fff;border-radius:24px;padding:28px 24px;width:min(90vw,340px);' +
-      'box-shadow:0 14px 44px rgba(0,0,0,.25);text-align:center';
-    card.innerHTML = `
-      <button id="gsi-close" aria-label="Cerrar" style="position:absolute;top:10px;right:14px;font-size:1.6rem;line-height:1;color:#999;background:none;border:none;cursor:pointer">&times;</button>
-      <div style="font-weight:800;font-size:1.15rem;color:#2D2D2D;margin-bottom:6px">Entra con Google</div>
-      <div style="font-size:.9rem;color:#888;margin-bottom:18px">Elige tu cuenta para continuar.</div>
-      <div id="gsi-btn" style="display:flex;justify-content:center"></div>`;
-
-    document.body.appendChild(backdrop);
-    document.body.appendChild(card);
-    this._fallbackEls = [backdrop, card];
-
-    google.accounts.id.renderButton(card.querySelector('#gsi-btn'),
-      { theme: 'filled_black', size: 'large', shape: 'pill', text: 'continue_with', width: 280 });
-
-    const close = () => this._removeFallback();
-    backdrop.addEventListener('click', close);
-    card.querySelector('#gsi-close').addEventListener('click', close);
-  },
-
-  _removeFallback() {
-    (this._fallbackEls || []).forEach(el => el.remove());
-    this._fallbackEls = null;
-  },
-
-  _onCredential(response) {
+  async handleGoogleClick() {
     try {
-      this._removeFallback(); // tear down the sign-in modal if it was showing
-      const payload = this._decodeJwt(response.credential);
-      const user = {
-        id: payload.sub,
-        name: payload.name,
-        givenName: payload.given_name,
-        email: payload.email,
-        photoUrl: payload.picture,
-        token: response.credential
-      };
-      localStorage.setItem('mindless_user', JSON.stringify(user));
-      store.state.user = user;
-      store.state.isAuthenticated = true;
-      router.navigate(store.state.isOnboarded ? '/' : '/onboarding');
-    } catch (e) {
-      console.error('Auth error:', e);
+      await this.signIn();
+    } catch (error) {
+      console.error('Sign-in failed:', error);
+      alert(error.message || 'No se pudo iniciar sesion con Google.');
     }
   },
 
-  _decodeJwt(token) {
-    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-    return JSON.parse(decodeURIComponent(atob(base64).split('').map(c =>
-      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-    ).join('')));
+  async signIn() {
+    const firebaseAuth = await getFirebaseAuth();
+    const provider = getGoogleProvider();
+    const result = await signInWithPopup(firebaseAuth, provider);
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    const user = normalizeUser(result.user, credential?.accessToken || null);
+
+    persistUser(user);
+    router.navigate(store.state.isOnboarded ? '/' : '/onboarding');
+    return user;
   },
 
   async signOut() {
-    if (typeof google !== 'undefined') google.accounts.id.disableAutoSelect();
-    await store.logout();
-    router.navigate('/welcome');
+    try {
+      if (isFirebaseConfigured()) {
+        const firebaseAuth = await getFirebaseAuth();
+        await firebaseSignOut(firebaseAuth);
+      }
+    } finally {
+      await store.logout();
+      router.navigate('/welcome');
+    }
   }
 };

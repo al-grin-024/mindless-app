@@ -35,7 +35,7 @@ Abre 👉 http://localhost:8000
 - **Estado reactivo** con un `Proxy` (`js/store.js`).
 - **Offline-first** con IndexedDB (`js/db.js`) + Service Worker (`sw.js`).
 - **PWA** instalable (`manifest.json`).
-- **Login** con Google Identity Services (`js/auth.js`).
+- **Login** con Firebase Authentication (`js/auth.js`).
 - **Iconos** Phosphor (CDN) · **Tipografía** Plus Jakarta Sans.
 
 Diseño: fondo crema `#FCF3EA`, tarjetas de 20px, botones tipo "pill" oscuros, colores pastel por categoría, blobs con gradiente. Tono de la copy: cálido y con guiño, en español.
@@ -45,7 +45,7 @@ Diseño: fondo crema `#FCF3EA`, tarjetas de 20px, botones tipo "pill" oscuros, c
 ## 📁 Estructura del proyecto
 
 ```
-index.html              # Punto de entrada. Carga estilos, fuentes, GIS y js/app.js
+index.html              # Punto de entrada. Carga estilos, fuentes y js/app.js
 manifest.json           # Config PWA (instalable)
 sw.js                   # Service Worker (offline + caché network-first)
 vercel.json             # Rewrites SPA para que todas las rutas sirvan index.html
@@ -60,7 +60,9 @@ js/
   router.js             # Router SPA (rutas, guards de auth/onboarding, ruta base)
   store.js              # Estado global reactivo (Proxy) + acciones
   db.js                 # Capa IndexedDB (persistencia offline)
-  auth.js               # Login con Google (GIS, token ID)
+  auth.js               # Login con Firebase Auth (Google)
+  firebase.js           # Inicialización de Firebase Auth
+  firebase-config.js    # Config del proyecto Firebase Web
   voice.js              # Reconocimiento de voz (Web Speech API)
   notifications.js      # Notificaciones / recordatorios
   i18n.js               # Internacionalización
@@ -102,15 +104,28 @@ Cada vez que se fusiona algo en `main`, **Vercel despliega solo** a producción.
 
 ---
 
+## 💻 Desarrollo local
+
+Desde la raíz del repo:
+
+```bash
+npm run dev
+```
+
+Esto levanta la app en `http://localhost:8000`, sirve `mindless-app/` con fallback SPA y recarga la página automáticamente cuando guardas cambios.
+
+---
+
 ## 🔐 Login con Google en local (opcional)
 
-La app funciona sin login para desarrollar la mayoría de pantallas. Si necesitas probar el **inicio de sesión con Google** en tu máquina, hay que autorizar tu origen local en el cliente OAuth:
+La app funciona sin login para desarrollar la mayoría de pantallas. Si necesitas probar el **inicio de sesión con Google** en tu máquina, revisa esta configuración:
 
-1. Pídele a Alejandra acceso al proyecto **"Mindless App"** en Google Cloud Console (o que ella lo haga).
-2. En **APIs y servicios → Credenciales → el cliente OAuth**, añade tu origen exacto a **Orígenes de JavaScript autorizados**, p. ej. `http://localhost:8000`.
-3. El puerto tiene que coincidir **exactamente** con el que uses al servir.
+1. Rellena `js/firebase-config.js` con la configuración de la Web App en Firebase.
+2. En **Firebase Console → Authentication → Sign-in method**, habilita el provider **Google**.
+3. En **Firebase Console → Authentication → Settings → Authorized domains**, añade tu origen exacto si no aparece, p. ej. `localhost`.
+4. Si usas este servidor local, el origen será `http://localhost:8000`.
 
-> Si te da error `400 / origin not allowed`, casi siempre es que tu origen no está en esa lista, o que tienes una versión cacheada vieja (recarga; el SW es network-first y se actualiza solo).
+> Si te da error de dominio no autorizado o popup bloqueado, casi siempre es configuración de Firebase Auth o una versión cacheada vieja. Recarga: el SW es network-first y se actualiza solo.
 
 ---
 
