@@ -3,7 +3,7 @@
  * Base-path aware: the app is hosted under a MAMP subdirectory, so all
  * cached URLs are derived from the SW's own scope rather than the origin root.
  */
-const CACHE = 'mindless-v3';
+const CACHE = 'mindless-v4';
 
 // e.g. "/Antigravity/Personal/Home/"
 const BASE = self.location.pathname.replace(/sw\.js$/, '');
@@ -43,18 +43,17 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Static assets → cache-first
+  // Same-origin assets → network-first so code/config updates always land.
+  // Cache is only a fallback for offline use (avoids stale-JS bugs, e.g. an
+  // old auth.js pinning a previous Google client_id).
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      if (cached) return cached;
-      return fetch(e.request).then(resp => {
-        if (resp && resp.status === 200 && resp.type === 'basic') {
-          const clone = resp.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
-        }
-        return resp;
-      });
-    })
+    fetch(e.request).then(resp => {
+      if (resp && resp.status === 200 && resp.type === 'basic') {
+        const clone = resp.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+      }
+      return resp;
+    }).catch(() => caches.match(e.request))
   );
 });
 

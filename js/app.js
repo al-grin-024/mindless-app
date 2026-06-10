@@ -37,4 +37,12 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW:', e));
   });
+  // When a new SW takes control (e.g. after a code update), reload once so the
+  // page runs the fresh code instead of whatever the old SW already served.
+  let _reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (_reloaded) return;
+    _reloaded = true;
+    window.location.reload();
+  });
 }
