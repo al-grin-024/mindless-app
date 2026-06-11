@@ -10,21 +10,30 @@
 
 No hay que instalar nada ni compilar nada. Es una web estática (HTML + CSS + JavaScript puro). Solo necesitas servir la carpeta con cualquier servidor estático y abrirla en el navegador.
 
-### Opción A — Python (ya viene en cualquier Mac)
+### Opción A — `npm run dev`
 
 ```bash
-cd <carpeta-del-repo>
+npm install
+npm run dev
+```
+
+Abre la URL que te muestre Vite. Por defecto intenta `http://localhost:8000` y, si está ocupado, usa el siguiente puerto libre.
+
+Vite sirve `mindless-app/`, resuelve bien la SPA y recarga al guardar cambios. Se para normal con `Ctrl+C`.
+
+### Opción B — Python (rápido, sin dependencias)
+
+```bash
+cd mindless-app
 python3 -m http.server 8000
 ```
 
-Abre 👉 http://localhost:8000
-
-### Opción B — VS Code + Live Server
+### Opción C — VS Code + Live Server
 
 1. Instala la extensión **Live Server**.
 2. Click derecho en `index.html` → **Open with Live Server**.
 
-> **Importante:** sirve siempre desde la **raíz del repositorio**. La app detecta sola su ruta base, así que en local funciona en `/` y en producción (Vercel) también. No hace falta MAMP ni ninguna config especial.
+> **Importante:** con `npm run dev`, arranca desde la **raíz del repositorio**. Con Python o Live Server, sirve `mindless-app/`. La app detecta sola su ruta base, así que en local funciona en `/` y en producción (Vercel) también.
 
 ---
 
@@ -112,7 +121,7 @@ Desde la raíz del repo:
 npm run dev
 ```
 
-Esto levanta la app en `http://localhost:8000`, sirve `mindless-app/` con fallback SPA y recarga la página automáticamente cuando guardas cambios.
+Esto levanta Vite sirviendo `mindless-app/`, resuelve el fallback SPA y recarga automáticamente al guardar cambios. Por defecto intenta `http://localhost:8000` y, si está ocupado, sube al siguiente puerto libre.
 
 ---
 
@@ -123,7 +132,7 @@ La app funciona sin login para desarrollar la mayoría de pantallas. Si necesita
 1. Rellena `js/firebase-config.js` con la configuración de la Web App en Firebase.
 2. En **Firebase Console → Authentication → Sign-in method**, habilita el provider **Google**.
 3. En **Firebase Console → Authentication → Settings → Authorized domains**, añade tu origen exacto si no aparece, p. ej. `localhost`.
-4. Si usas este servidor local, el origen será `http://localhost:8000`.
+4. Si usas este servidor local, el origen será la URL exacta que te muestre Vite, normalmente `http://localhost:8000`.
 
 > Si te da error de dominio no autorizado o popup bloqueado, casi siempre es configuración de Firebase Auth o una versión cacheada vieja. Recarga: el SW es network-first y se actualiza solo.
 

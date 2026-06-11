@@ -60,6 +60,7 @@ export const router = {
   async navigate(path) {
     if (path === this.currentPath) return;
     window.history.pushState(null, null, fullPath(path));
+    if (!this.container) return;
     await this.route();
   },
 
@@ -73,6 +74,8 @@ export const router = {
   },
 
   async route() {
+    if (!this.container) return;
+
     // ── Splash: show once per page load ──
     if (!this._splashed) {
       this._splashed = true;
@@ -87,29 +90,30 @@ export const router = {
       } catch (e) { /* fall through to normal routing */ }
     }
 
-    let path = getAppPath();
+	    let path = getAppPath();
+      const onboardingComplete = store.isOnboardingComplete();
 
-    // Auth guard
-    if (!store.state.isAuthenticated && path !== '/welcome'
-        && path !== '/privacy-policy' && path !== '/terms') {
+	    // Auth guard
+	    if (!store.state.isAuthenticated && path !== '/welcome'
+	        && path !== '/privacy-policy' && path !== '/terms') {
       window.history.replaceState(null, null, fullPath('/welcome'));
       path = '/welcome';
     }
 
-    // Onboarding guard
-    if (store.state.isAuthenticated && !store.state.isOnboarded
-        && path !== '/onboarding' && path !== '/welcome'
-        && path !== '/privacy-policy' && path !== '/terms') {
-      window.history.replaceState(null, null, fullPath('/onboarding'));
-      path = '/onboarding';
-    }
+	    // Onboarding guard
+	    if (store.state.isAuthenticated && (!store.state.isOnboarded || !onboardingComplete)
+	        && path !== '/onboarding' && path !== '/welcome'
+	        && path !== '/privacy-policy' && path !== '/terms') {
+	      window.history.replaceState(null, null, fullPath('/onboarding'));
+	      path = '/onboarding';
+	    }
 
-    // Already in → skip welcome/onboarding
-    if (store.state.isAuthenticated && store.state.isOnboarded
-        && (path === '/welcome' || path === '/onboarding')) {
-      window.history.replaceState(null, null, fullPath('/'));
-      path = '/';
-    }
+	    // Already in → skip welcome/onboarding
+	    if (store.state.isAuthenticated && store.state.isOnboarded && onboardingComplete
+	        && (path === '/welcome' || path === '/onboarding')) {
+	      window.history.replaceState(null, null, fullPath('/'));
+	      path = '/';
+	    }
 
     const loader = this._resolve(path);
     this.currentPath = path;

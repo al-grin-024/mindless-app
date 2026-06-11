@@ -4,6 +4,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js';
 import {
   browserLocalPersistence,
+  EmailAuthProvider,
   getAuth,
   GoogleAuthProvider,
   setPersistence,
@@ -12,7 +13,8 @@ import { firebaseConfig } from './firebase-config.js';
 
 let _app = null;
 let _auth = null;
-let _provider = null;
+let _googleProvider = null;
+let _googleCalendarProvider = null;
 
 function hasRealValue(value) {
   return typeof value === 'string' && value !== '' && !value.startsWith('YOUR_');
@@ -36,10 +38,26 @@ export async function getFirebaseAuth() {
 }
 
 export function getGoogleProvider() {
-  if (_provider) return _provider;
+  if (_googleProvider) return _googleProvider;
 
-  _provider = new GoogleAuthProvider();
-  _provider.setCustomParameters({ prompt: 'select_account' });
-  return _provider;
+  _googleProvider = new GoogleAuthProvider();
+  _googleProvider.setCustomParameters({ prompt: 'select_account' });
+  return _googleProvider;
 }
 
+export function getGoogleCalendarProvider() {
+  if (_googleCalendarProvider) return _googleCalendarProvider;
+
+  _googleCalendarProvider = new GoogleAuthProvider();
+  _googleCalendarProvider.setCustomParameters({
+    prompt: 'consent',
+    access_type: 'offline',
+  });
+  _googleCalendarProvider.addScope('https://www.googleapis.com/auth/calendar.events');
+  _googleCalendarProvider.addScope('https://www.googleapis.com/auth/calendar.readonly');
+  return _googleCalendarProvider;
+}
+
+export function getEmailProvider() {
+  return EmailAuthProvider.PROVIDER_ID;
+}

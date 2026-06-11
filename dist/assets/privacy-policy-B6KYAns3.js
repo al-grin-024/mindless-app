@@ -1,17 +1,4 @@
-/**
- * Mindless — Privacy Policy (GDPR)
- */
-import { store } from '../store.js';
-import { router } from '../router.js';
-
-function back() {
-  router.navigate(store.state.isAuthenticated ? '/profile' : '/welcome');
-}
-
-export default async function render() {
-  const view = document.createElement('div');
-  view.className = 'view legal';
-  view.innerHTML = `
+import{r as a,s as o}from"./index-tRm4fW5H.js";import"https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";import"https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";import"https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";function i(){a.navigate(o.state.isAuthenticated?"/profile":"/welcome")}async function t(){const e=document.createElement("div");return e.className="view legal",e.innerHTML=`
     <div class="view-header">
       <button class="icon-btn" id="back" aria-label="Atrás"><i class="ph ph-arrow-left"></i></button>
       <span class="view-header__title">Privacidad</span>
@@ -90,7 +77,4 @@ export default async function render() {
     <h3>10. Contacto</h3>
     <p>Para cualquier duda sobre privacidad:
     <a href="mailto:hello@mindless.app">hello@mindless.app</a>.</p>
-  `;
-  view.querySelector('#back').addEventListener('click', back);
-  return view;
-}
+  `,e.querySelector("#back").addEventListener("click",i),e}export{t as default};

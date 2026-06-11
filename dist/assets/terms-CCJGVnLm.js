@@ -1,17 +1,4 @@
-/**
- * Mindless — Terms of Service
- */
-import { store } from '../store.js';
-import { router } from '../router.js';
-
-function back() {
-  router.navigate(store.state.isAuthenticated ? '/profile' : '/welcome');
-}
-
-export default async function render() {
-  const view = document.createElement('div');
-  view.className = 'view legal';
-  view.innerHTML = `
+import{r as e,s as i}from"./index-tRm4fW5H.js";import"https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";import"https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";import"https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";function s(){e.navigate(i.state.isAuthenticated?"/profile":"/welcome")}async function d(){const a=document.createElement("div");return a.className="view legal",a.innerHTML=`
     <div class="view-header">
       <button class="icon-btn" id="back" aria-label="Atrás"><i class="ph ph-arrow-left"></i></button>
       <span class="view-header__title">Términos</span>
@@ -76,7 +63,4 @@ export default async function render() {
 
     <h3>11. Contacto</h3>
     <p>Para cualquier duda: <a href="mailto:hello@mindless.app">hello@mindless.app</a>.</p>
-  `;
-  view.querySelector('#back').addEventListener('click', back);
-  return view;
-}
+  `,a.querySelector("#back").addEventListener("click",s),a}export{d as default};

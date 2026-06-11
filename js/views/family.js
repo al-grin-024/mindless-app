@@ -38,19 +38,22 @@ export default async function render() {
       return;
     }
     list.classList.add('stagger');
-    members.forEach((m, i) => {
-      const card = document.createElement('div');
-      card.className = 'family-card';
-      card.style.background = COLORS[i % COLORS.length];
-      const initial = (m.name || '?')[0].toUpperCase();
-      card.innerHTML = `
-        <div class="avatar-fallback family-card__avatar" style="background:rgba(255,255,255,0.55)">${m.emoji || initial}</div>
-        <div class="flex-1">
-          <div class="family-card__name">${escapeHtml(m.name)}</div>
-          <div class="family-card__role">${escapeHtml(m.role || 'Familia')}</div>
-        </div>`;
-      list.appendChild(card);
-    });
+	    members.forEach((m, i) => {
+	      const card = document.createElement('div');
+	      card.className = 'family-card';
+	      card.style.background = COLORS[i % COLORS.length];
+	      const initial = (m.name || '?')[0].toUpperCase();
+        const subtitle = [m.role || 'Familia', m.birthDate ? formatBirthDate(m.birthDate) : '']
+          .filter(Boolean)
+          .join(' · ');
+	      card.innerHTML = `
+	        <div class="avatar-fallback family-card__avatar" style="background:rgba(255,255,255,0.55)">${m.emoji || initial}</div>
+	        <div class="flex-1">
+	          <div class="family-card__name">${escapeHtml(m.name)}</div>
+	          <div class="family-card__role">${escapeHtml(subtitle)}</div>
+	        </div>`;
+	      list.appendChild(card);
+	    });
   }
   draw();
 
@@ -68,4 +71,11 @@ export default async function render() {
 function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, c =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function formatBirthDate(value) {
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime())
+    ? value
+    : date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
 }

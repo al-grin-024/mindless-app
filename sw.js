@@ -39,7 +39,10 @@ self.addEventListener('fetch', e => {
   // HTML navigations → serve the app shell (SPA), network-first so dev edits show.
   if (e.request.mode === 'navigate') {
     e.respondWith(
-      fetch(e.request).catch(() => caches.match(url('index.html')))
+      fetch(e.request).catch(async () => {
+        const cachedIndex = await caches.match(url('index.html'));
+        return cachedIndex || Response.error();
+      })
     );
     return;
   }
@@ -54,7 +57,10 @@ self.addEventListener('fetch', e => {
         caches.open(CACHE).then(c => c.put(e.request, clone));
       }
       return resp;
-    }).catch(() => caches.match(e.request))
+    }).catch(async () => {
+      const cachedResponse = await caches.match(e.request);
+      return cachedResponse || Response.error();
+    })
   );
 });
 

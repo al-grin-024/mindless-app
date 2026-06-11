@@ -1,0 +1,25 @@
+{
+  "name": "Mindless — Your family's second brain",
+  "short_name": "Mindless",
+  "description": "Family management and life automation that takes the mental load off your shoulders.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#FCF3EA",
+  "background_color": "#FCF3EA",
+  "icons": [
+    {
+      "src": "icons/icon-192x192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512x512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

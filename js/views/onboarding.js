@@ -1,6 +1,6 @@
 /**
  * Mindless — Onboarding (conversational)
- * A warm chat-bubble flow: greeting → partner → family size → kids' ages →
+ * A warm chat-bubble flow: greeting → partner → family size → child details →
  * color vibe → summary. Speak or type. Skip always available.
  */
 import { store } from '../store.js';
@@ -35,7 +35,7 @@ export default async function render() {
   const chat = root.querySelector('#ob-chat');
   const inputArea = root.querySelector('#ob-input');
   const name = store.state.user?.givenName || store.state.user?.name || 'guapa';
-  const answers = { partnerName: null, kids: 0, ages: '', theme: 'warm' };
+  const answers = { partnerName: null, kids: 0, children: [], theme: 'warm' };
 
   function scroll() { chat.scrollTop = chat.scrollHeight; }
 
@@ -98,6 +98,26 @@ export default async function render() {
     input.focus();
   }
 
+  function dateInput(onSend) {
+    clearInput();
+    const row = document.createElement('div');
+    row.className = 'onboarding__type-row';
+    row.innerHTML = `
+      <input class="field" type="date" max="${new Date().toISOString().slice(0, 10)}">
+      <button class="onboarding__send" aria-label="Enviar"><i class="ph ph-arrow-up"></i></button>`;
+    const input = row.querySelector('input');
+    const submit = () => {
+      const value = input.value;
+      if (!value) return;
+      userBubble(formatDate(value));
+      onSend(value);
+    };
+    row.querySelector('button').addEventListener('click', submit);
+    input.addEventListener('keydown', (event) => { if (event.key === 'Enter') submit(); });
+    inputArea.appendChild(row);
+    input.focus();
+  }
+
   // ── Flow ──
   async function start() {
     await botBubble(`¡Hola, ${escapeHtml(name)}! 👋 Soy Mindless. Voy a quitarte de la cabeza todo el lío de la casa.`);
@@ -119,14 +139,28 @@ export default async function render() {
     await botBubble('¿Cuántos peques hay en casa?');
     chips(['0', '1', '2', '3', '4+'].map(n => ({ label: n, v: n })), async (o) => {
       answers.kids = o.v === '4+' ? 4 : parseInt(o.v, 10);
-      if (answers.kids > 0) { await askAges(); } else { await askTheme(); }
+      answers.children = [];
+      if (answers.kids > 0) { await askChildName(0); } else { await askTheme(); }
     });
   }
 
-  async function askAges() {
-    await botBubble('¿Y qué edades tienen? Así te aviso de vacunas, cole y meriendas 😉');
-    textInput('Ej: 3 y 6 años', async (v) => {
-      answers.ages = v;
+  async function askChildName(index) {
+    await botBubble(`¿Cómo se llama ${ordinalLabel(index + 1)} peque?`);
+    textInput('Nombre del peque...', async (value) => {
+      answers.children[index] = { ...(answers.children[index] || {}), name: value.trim() };
+      await askChildBirthDate(index);
+    });
+  }
+
+  async function askChildBirthDate(index) {
+    const child = answers.children[index];
+    await botBubble(`¿Cuál es la fecha de nacimiento de ${escapeHtml(child.name)}?`);
+    dateInput(async (value) => {
+      answers.children[index] = { ...child, birthDate: value };
+      if (index + 1 < answers.kids) {
+        await askChildName(index + 1);
+        return;
+      }
       await askTheme();
     });
   }
@@ -146,7 +180,14 @@ export default async function render() {
     const btn = document.createElement('button');
     btn.className = 'btn btn-primary btn-block btn-lg';
     btn.textContent = 'Entrar a mi mini mundo';
-    btn.addEventListener('click', async () => { await store.markOnboarded(); router.navigate('/'); });
+    btn.addEventListener('click', async () => {
+      const completed = await store.markOnboarded();
+      if (!completed) {
+        await botBubble('Nos falta algun dato antes de entrar. Terminemos el onboarding y seguimos.');
+        return;
+      }
+      router.navigate('/');
+    });
     inputArea.appendChild(btn);
   }
 
@@ -154,18 +195,35 @@ export default async function render() {
     try {
       if (answers.partnerName) await store.updateSetting('partner', { name: answers.partnerName });
       await store.updateSetting('theme', answers.theme);
-      await store.updateSetting('kids', { count: answers.kids, ages: answers.ages });
+      await store.updateSetting('kids', {
+        count: answers.kids,
+        children: answers.children.map((child) => ({
+          name: child.name,
+          birthDate: child.birthDate,
+        })),
+      });
       const me = store.state.user;
-      if (me && !store.state.familyMembers.length) {
+      if (me && !store.state.familyMembers.some((member) => member.role === 'Tú')) {
         await store.addFamilyMember({ name: me.givenName || me.name, role: 'Tú', emoji: '👩' });
-        if (answers.partnerName) await store.addFamilyMember({ name: answers.partnerName, role: 'Pareja', emoji: '🧑' });
+      }
+      if (answers.partnerName && !store.state.familyMembers.some((member) => member.role === 'Pareja')) {
+        await store.addFamilyMember({ name: answers.partnerName, role: 'Pareja', emoji: '🧑' });
+      }
+      for (const child of answers.children) {
+        const alreadyExists = store.state.familyMembers.some((member) =>
+          member.role === 'Peque'
+          && member.name === child.name
+          && member.birthDate === child.birthDate
+        );
+        if (!alreadyExists) {
+          await store.addFamilyMember({ name: child.name, role: 'Peque', emoji: '🧒', birthDate: child.birthDate });
+        }
       }
     } catch (e) { console.warn('onboarding persist', e); }
   }
 
   root.querySelector('#ob-skip').addEventListener('click', async () => {
-    await store.markOnboarded();
-    router.navigate('/');
+    await botBubble('Antes de entrar necesito que terminemos estos datos basicos para montar tu mini mundo.');
   });
 
   setTimeout(start, 350);
@@ -175,4 +233,15 @@ export default async function render() {
 function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, c =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function ordinalLabel(index) {
+  return ['el primer', 'el segundo', 'el tercer', 'el cuarto'][index - 1] || `el peque ${index}`;
+}
+
+function formatDate(value) {
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime())
+    ? value
+    : date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
 }
